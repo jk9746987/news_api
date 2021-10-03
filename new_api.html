@@ -1,0 +1,140 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Web_API串接練習</title>
+        <style>
+            *{
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            body{
+                background-color: lightgray;
+            }
+            h1{
+                text-align: center;
+            }
+            h2{
+                text-align: center;
+            }
+            #container{
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                margin-top: 10px;
+            }
+            .new{
+                height: 250px;
+                width: 1000px;
+                border: 1px solid black;
+                margin-bottom: 20px;
+            }
+            a{
+                display: flex;
+                text-decoration: none;
+            }
+            a:hover h3{
+                color: white;
+            }
+            img{
+                width: 350px;
+                height: 250px;
+            }
+            .txt{
+                position: relative;
+                color: black;
+                width: 600px;
+                margin: 0 auto;
+            }
+            h3{
+                color: blue;
+                font-size: 20px;
+                margin: 10px 0 10px 0;
+            }
+            .author{
+                font-weight: 1000;
+            }
+            .description{
+                margin-top: 10px;
+            }
+            .more{
+                text-align: end;
+                padding-right: 10px;
+                color: gray;
+                position: absolute;
+                bottom: 10px;
+                right: 0;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>從 Web API 撈出台灣當天運動頭版的 10 則新聞</h1>
+        <h2></h2>
+        <h2 id="read"></h2>
+        <div id="container"></div>
+        <script>       
+            let url =
+            'https://newsapi.org/v2/top-headlines?' +
+            'country=tw' +
+            '&category=sports' +
+            '&pageSize=10' +
+            '&apiKey=baddd695cc33415c96826c14d970ae41';
+
+            let container = document.querySelector('#container');
+            let h2 = document.querySelector('h2');
+            let day = new Date();
+            let year = day.getFullYear();
+            let month = day.getMonth()+1;
+            let date = day.getDate();
+            h2.innerHTML = '日期：' + year + '-' + month + '-' + date;
+
+            let read = document.querySelector('#read');
+            function now(){
+                let time = new Date();
+                let hour = time.getHours();
+                let min = time.getMinutes();
+                let sec = time.getSeconds();
+                let clock = '現在時間：' + `${hour}:${min}:${sec}`;
+                read.textContent = clock;
+            }
+            setInterval(now, 1000);
+            
+
+
+            function news(){
+                let xhr = new XMLHttpRequest();
+                xhr.open("GET",url,true);
+                xhr.send();
+                xhr.onreadystatechange = function(){
+                    if(xhr.readyState === 4){
+                        if(xhr.status >= 200 && xhr.status < 300){
+                            let response = JSON.parse(xhr.response);
+                            for(let i = 0; i < response.articles.length; i++){
+                                let abbrev = response.articles[i];
+                                // 建立每一則新聞
+                                container.innerHTML += `
+                                <div class="new">
+                                    <a href="${abbrev.url}">
+                                        <img src="${abbrev.urlToImage}">
+                                        <div class="txt">
+                                            <h3>標題：${abbrev.title}</h3>
+                                            <p class="author">作者：${abbrev.author}</p>
+                                            <p class="description">${abbrev.description}</p>
+                                            <p class="more">< 觀看更多 ></p>
+                                        </div>
+                                    </a>
+                                </div>
+                                `
+                                // console.log(abbrev)
+                            }
+                        }
+                    }
+                }
+            }
+            news();
+            
+        </script>
+    </body>
+</html>
